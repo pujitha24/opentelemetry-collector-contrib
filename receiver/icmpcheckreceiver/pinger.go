@@ -4,6 +4,7 @@
 package icmpcheckreceiver // import "github.com/open-telemetry/opentelemetry-collector-contrib/receiver/icmpcheckreceiver"
 
 import (
+	"runtime"
 	"time"
 
 	probing "github.com/prometheus-community/pro-bing"
@@ -55,6 +56,15 @@ func defaultPingerFactory(target PingTarget) (pinger, error) {
 	p.Interval = target.PingInterval
 	p.Timeout = target.PingTimeout
 	p.Count = target.PingCount
+
+	// On Windows, unprivileged (UDP) pings are not supported by the OS and
+	// fail with "socket: The requested protocol has not been configured
+	// into the system, or no implementation for it exists.". Privileged
+	// (raw ICMP) pings work there without elevated permissions, so use
+	// that mode instead. See https://github.com/prometheus-community/pro-bing#windows
+	if runtime.GOOS == "windows" {
+		p.SetPrivileged(true)
+	}
 
 	return &defaultPinger{p}, nil
 }
