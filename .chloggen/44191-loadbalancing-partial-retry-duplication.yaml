@@ -4,7 +4,7 @@
 change_type: bug_fix
 
 # The name of the component, or a single word describing the area of concern, (e.g. receiver/filelog)
-component: exporter/loadbalancing
+component: exporter/load_balancing
 
 # A brief description of the change.  Surround your text with quotes ("") if it needs to start with a backtick (`).
 note: Fix duplicate trace delivery when the exporter-level `retry_on_failure`/`sending_queue` ("resiliency option 1") retries a batch after only some backends failed. Previously the whole original batch was retried, re-sending data to backends that had already received it; now only the data that actually failed to export is retried.
